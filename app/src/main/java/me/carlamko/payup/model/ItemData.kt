@@ -1,3 +1,5 @@
 package me.carlamko.payup.model
 
-data class ItemData(val name: String, val icon: Int, val price: Float)
+data class ItemData(val name: String, val iconRes: Int, val price: Float) {
+    val id = name.hashCode()
+}

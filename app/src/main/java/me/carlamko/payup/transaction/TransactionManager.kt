@@ -1,11 +1,44 @@
 package me.carlamko.payup.transaction
 
-import me.carlamko.payup.settings.Settings
+import android.content.Context
+import android.preference.PreferenceManager
+import android.widget.Toast
+import me.carlamko.payup.model.ItemData
+import me.carlamko.payup.model.UIEvent
+import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TransactionManager @Inject constructor(private val settings: Settings) {
+class TransactionManager @Inject constructor(context: Context, private val items: List<ItemData>) {
+    companion object {
+        private fun generateKeyForItem(itemData: ItemData): String =
+            "KEY_${itemData.id}_QUANTITY"
+    }
 
+    private val settings = PreferenceManager.getDefaultSharedPreferences(context)
 
+    fun getItemQuantity(itemData: ItemData): Int =
+        settings.getInt(generateKeyForItem(itemData), 0)
+
+    fun buyItem(itemData: ItemData) {
+        settings.edit().apply {
+            putInt(generateKeyForItem(itemData), getItemQuantity(itemData) + 1)
+        }.apply()
+
+        EventBus.getDefault().post(UIEvent.ShowToast("Added ${itemData.name} x 1.", Toast.LENGTH_SHORT))
+    }
+
+    fun getBalance(): Float = items.sumByDouble { getItemTotalValue(it).toDouble() }.toFloat()
+
+    fun settleUp() = items.forEach { resetItemTotal(it) }
+
+    private fun getItemTotalValue(itemData: ItemData): Float =
+        getItemQuantity(itemData) * itemData.price
+
+    private fun resetItemTotal(itemData: ItemData) {
+        settings.edit().apply {
+            putInt(generateKeyForItem(itemData), 0)
+        }.apply()
+    }
 }

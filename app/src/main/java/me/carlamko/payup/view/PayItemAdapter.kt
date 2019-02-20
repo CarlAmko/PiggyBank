@@ -7,16 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.pay_item.view.*
 import me.carlamko.payup.Application.Companion.injector
 import me.carlamko.payup.R
+import me.carlamko.payup.extensions.formatAsMoney
 import me.carlamko.payup.model.ItemData
 
 class PayItemAdapter : RecyclerView.Adapter<PayItemAdapter.PayItemViewHolder>() {
-    // @TODO un-hardcode this
-    var items: List<ItemData> = listOf(
-        ItemData("Chocolate", R.drawable.chocolate, 1.5f),
-        ItemData("Pastry", R.drawable.pastry, 1.5f),
-        ItemData("Candy", R.drawable.candy, 1.5f),
-        ItemData("Coffee", R.drawable.coffee, 1.5f))
-
+    var items: List<ItemData> = injector.itemData()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -40,11 +35,11 @@ class PayItemAdapter : RecyclerView.Adapter<PayItemAdapter.PayItemViewHolder>() 
     class PayItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun setData(itemData: ItemData) {
             itemView.tv_item_name.text = itemData.name
-            itemView.iv_item_icon.setImageResource(itemData.icon)
-            itemView.tv_item_price.text = "$${"%.2f".format(itemData.price)}"
+            itemView.iv_item_icon.setImageResource(itemData.iconRes)
+            itemView.tv_item_price.text = itemData.price.formatAsMoney()
 
             itemView.cl_pay_item.setOnClickListener {
-                injector.settings().addToTotal(itemData.price)
+                injector.transactionManager().buyItem(itemData)
             }
         }
     }
