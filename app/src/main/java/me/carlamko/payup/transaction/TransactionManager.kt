@@ -3,6 +3,7 @@ package me.carlamko.payup.transaction
 import android.content.Context
 import android.preference.PreferenceManager
 import android.widget.Toast
+import me.carlamko.payup.model.DataChangeEvent
 import me.carlamko.payup.model.ItemData
 import me.carlamko.payup.model.UIEvent
 import org.greenrobot.eventbus.EventBus
@@ -27,11 +28,18 @@ class TransactionManager @Inject constructor(context: Context, private val items
     fun incrementItem(itemData: ItemData) {
         setItemQuantity(itemData, getItemQuantity(itemData) + 1)
         EventBus.getDefault().post(UIEvent.ShowToast("Added ${itemData.name} x 1.", Toast.LENGTH_SHORT))
+        EventBus.getDefault().post(DataChangeEvent)
     }
 
     fun decrementItem(itemData: ItemData) {
-        setItemQuantity(itemData, Math.max(0, getItemQuantity(itemData) - 1))
-        EventBus.getDefault().post(UIEvent.ShowToast("Removed ${itemData.name} x 1.", Toast.LENGTH_SHORT))
+        val currentQuantity = getItemQuantity(itemData)
+        // Only notify if value actually changed
+        if (currentQuantity >= 1) {
+            EventBus.getDefault().post(UIEvent.ShowToast("Removed ${itemData.name} x 1.", Toast.LENGTH_SHORT))
+            EventBus.getDefault().post(DataChangeEvent)
+        }
+        // Quantity can't be negative
+        setItemQuantity(itemData, Math.max(0, currentQuantity - 1))
     }
 
     fun getBalance(): Float = items.sumByDouble { getItemTotalValue(it).toDouble() }.toFloat()
@@ -39,11 +47,13 @@ class TransactionManager @Inject constructor(context: Context, private val items
     fun settleUp() {
         saveStateForUndo()
         items.forEach { resetItemTotal(it) }
+        EventBus.getDefault().post(DataChangeEvent)
     }
 
     fun undo() {
         savedState.forEach { itemId, quantity -> setItemQuantity(itemId, quantity) }
         savedState.clear()
+        EventBus.getDefault().post(DataChangeEvent)
     }
 
     private fun setItemQuantity(itemId: Int, quantity: Int) {

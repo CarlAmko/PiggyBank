@@ -8,14 +8,37 @@
     android:paddingBottom="8dp">
 
     <ImageView
+        android:id="@+id/iv_item_increment"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_plus"
+        android:tint="@android:color/holo_green_dark"
+        app:layout_constraintBottom_toTopOf="@id/iv_item_decrement"
+        app:layout_constraintEnd_toStartOf="@id/iv_item"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_item" />
+
+    <ImageView
+        android:id="@+id/iv_item_decrement"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_minus"
+        android:tint="@android:color/holo_red_dark"
+        app:layout_constraintBottom_toBottomOf="@id/iv_item"
+        app:layout_constraintEnd_toStartOf="@id/iv_item"
+        app:layout_constraintTop_toBottomOf="@id/iv_item_increment" />
+
+    <ImageView
         android:id="@+id/iv_item"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tv_item_quantity"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_item_increment"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/pastry" />
 
