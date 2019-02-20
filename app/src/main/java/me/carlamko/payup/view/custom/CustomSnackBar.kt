@@ -6,17 +6,29 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.BaseTransientBottomBar
+import kotlinx.android.synthetic.main.custom_snackbar.view.*
 import me.carlamko.payup.R
 
 class CustomSnackBar(parent: ViewGroup, content: View, contentViewCallback: ContentViewCallback) :
     BaseTransientBottomBar<CustomSnackBar>(parent, content, contentViewCallback) {
 
     companion object {
-        /*fun make(view: View, text: String, length: Int): CustomSnackBar =
-            CustomSnackBar(
-                findSuitableParent(view),
-                LayoutInflater.from(view.context).inflate(R.layout.custom_snackbar, null, false),
-                null)*/
+        fun make(view: View, text: String, iconRes: Int, length: Int): CustomSnackBar {
+            val parent = findSuitableParent(view)
+            val snackbarView = LayoutInflater.from(view.context).inflate(R.layout.custom_snackbar, parent, false)
+            return CustomSnackBar(
+                parent,
+                snackbarView,
+                CustomContentViewCallback()
+            ).apply {
+                snackbarView.iv_snackbar.setImageResource(iconRes)
+                snackbarView.tv_snackbar.text = text
+                snackbarView.b_snackbar.setOnClickListener { dismiss() }
+
+                // remove parent layout padding
+                this.view.setPadding(0, 0, 0, 0)
+            }
+        }
 
         private fun findSuitableParent(v: View): ViewGroup {
             var view: View? = v
@@ -47,4 +59,11 @@ class CustomSnackBar(parent: ViewGroup, content: View, contentViewCallback: Cont
         }
     }
 
+    fun setAction(text: String, action: () -> Unit) {
+        view.b_snackbar.text = text
+        view.b_snackbar.setOnClickListener {
+            action.invoke()
+            dismiss()
+        }
+    }
 }

@@ -39,7 +39,7 @@ class PayItemAdapter : RecyclerView.Adapter<PayItemAdapter.PayItemViewHolder>() 
             itemView.tv_item_price.text = itemData.price.formatAsMoney()
 
             itemView.cl_pay_item.setOnClickListener {
-                injector.transactionManager().buyItem(itemData)
+                injector.transactionManager().incrementItem(itemData)
             }
         }
     }
