@@ -15,8 +15,6 @@ import org.greenrobot.eventbus.ThreadMode
 
 class MainActivity : AppCompatActivity() {
 
-    private val payoutFragment = PayoutFragment()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -24,12 +22,7 @@ class MainActivity : AppCompatActivity() {
 
         // launch payout fragment
         fab_pay.setOnClickListener {
-            if (!isPayoutVisible()) {
-                supportFragmentManager.beginTransaction()
-                    .add(android.R.id.content, payoutFragment, payoutFragment.javaClass.name)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    .commit()
-            }
+            togglePayout(true)
         }
 
         // setup recycler view items
@@ -44,17 +37,35 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (isPayoutVisible()) {
-            supportFragmentManager.beginTransaction()
-                .remove(payoutFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .commit()
+            togglePayout(false)
         } else {
             super.onBackPressed()
         }
     }
 
+    private fun togglePayout(show: Boolean) {
+        when (show) {
+            true -> {
+                if (!isPayoutVisible()) {
+                    supportFragmentManager.beginTransaction()
+                        .add(android.R.id.content, PayoutFragment(), PayoutFragment::class.java.name)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit()
+                }
+            }
+            false -> {
+                if (isPayoutVisible()) {
+                    supportFragmentManager.beginTransaction()
+                        .remove(supportFragmentManager.findFragmentByTag(PayoutFragment::class.java.name)!!)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit()
+                }
+            }
+        }
+    }
+
     private fun isPayoutVisible(): Boolean =
-        supportFragmentManager.findFragmentByTag(payoutFragment.javaClass.name) != null
+        supportFragmentManager.findFragmentByTag(PayoutFragment::class.java.name) != null
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEvent(uiEvent: UIEvent) {
